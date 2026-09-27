@@ -18,6 +18,78 @@ const CONTACT_MAPS_LINK = `https://www.google.com/maps/search/?api=1&query=${enc
   CONTACT_ADDRESS,
 )}`;
 
+const PACKAGE_LESSONS = ["02", "06", "10"];
+
+// Defasagem do traço dourado na borda de cada card de Pacotes.
+const PACKAGE_TRACE_DELAYS = ["0s", "-2.6s", "-1.2s", "-5.8s"];
+
+const PACKAGE_CARDS = [
+  {
+    eyebrow: "Categoria A",
+    title: "CNH Moto",
+    description:
+      "Para quem deseja iniciar o processo de habilitação para motocicletas.",
+    features: ["Categoria A", "Atendimento personalizado", "Consulte valores e condições"],
+    prices: ["399,00", "699,00", "899,00"],
+    message: "Olá! Gostaria de informações sobre os pacotes da Categoria A - Moto.",
+    highlight: false,
+  },
+  {
+    eyebrow: "Categoria B",
+    title: "CNH Carro",
+    description:
+      "Para quem deseja iniciar o processo de habilitação para automóveis.",
+    features: ["Categoria B", "Atendimento personalizado", "Consulte valores e condições"],
+    prices: ["399,00", "699,00", "899,00"],
+    message: "Olá! Gostaria de informações sobre os pacotes da Categoria B - Carro.",
+    highlight: false,
+  },
+  {
+    eyebrow: "Categorias A + B",
+    title: "Carro + Moto",
+    description:
+      "Uma opção para quem deseja realizar o processo das duas categorias.",
+    features: ["Categorias A + B", "Atendimento personalizado", "Consulte valores e condições"],
+    prices: ["699,00", "999,00", "1.399,00"],
+    message: "Olá! Gostaria de informações sobre os pacotes A+B - Carro + Moto.",
+    highlight: true,
+  },
+  {
+    eyebrow: "Adição",
+    title: "Adição Moto",
+    description:
+      "Para quem já possui CNH de carro e deseja adicionar a categoria para moto.",
+    features: ["Adição da categoria A", "Atendimento personalizado", "Consulte valores e condições"],
+    prices: ["399,00", "699,00", "899,00"],
+    message: "Olá! Gostaria de informações sobre os pacotes de Adição - Moto.",
+    highlight: false,
+  },
+];
+
+// Grid técnico em grafite quente (fundo do Hero e de Pacotes). A intensidade
+// de cada seção é controlada pela opacidade da camada.
+const WARM_GRID_STYLE = {
+  backgroundImage:
+    "linear-gradient(rgb(255,236,200) 1px, transparent 1px), linear-gradient(90deg, rgb(255,236,200) 1px, transparent 1px)",
+  backgroundSize: "40px 40px",
+  maskImage:
+    "radial-gradient(ellipse 80% 75% at 50% 50%, #000 30%, rgba(0,0,0,0.35) 100%)",
+  WebkitMaskImage:
+    "radial-gradient(ellipse 80% 75% at 50% 50%, #000 30%, rgba(0,0,0,0.35) 100%)",
+};
+
+// Grid discreto que desaparece em direção às bordas (fundo de Alunos e de
+// Como funciona). A intensidade de cada seção fica na opacidade da camada.
+const SOFT_GRID_STYLE = {
+  backgroundImage:
+    "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)",
+  backgroundSize: "32px 32px",
+  maskImage:
+    "radial-gradient(ellipse 65% 75% at 50% 50%, #000 20%, rgba(0,0,0,0.4) 60%, transparent 100%)",
+  WebkitMaskImage:
+    "radial-gradient(ellipse 65% 75% at 50% 50%, #000 20%, rgba(0,0,0,0.4) 60%, transparent 100%)",
+};
+
 const STUDENT_PHOTO_EXTENSIONS = /\.(webp|jpg|jpeg|png)$/i;
 
 /**
@@ -41,6 +113,174 @@ function getStudentPhotos(): string[] {
 
 function whatsappHref(message: string) {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+}
+
+/** Seta dos CTAs em pílula, centralizada dentro do círculo dourado. */
+function CtaArrow() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      className="h-[15px] w-[15px] fill-none stroke-current stroke-[2.2] transition-transform duration-300 group-hover/cta:translate-x-[2px] motion-reduce:transition-none motion-reduce:group-hover/cta:translate-x-0"
+    >
+      <path
+        d="M5 12h13.5M13 6.5 18.5 12 13 17.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+const ctaCircleClass =
+  "flex shrink-0 items-center justify-center rounded-full bg-[#f6bd16] text-[#090909] transition duration-300 group-hover/cta:scale-105 group-hover/cta:bg-[#ffd044] group-hover/cta:shadow-[0_0_14px_rgba(246,189,22,0.45)] motion-reduce:transition-none motion-reduce:group-hover/cta:scale-100";
+
+/**
+ * CTA principal amarelo (padrão do Hero): texto escuro e círculo preto com
+ * seta amarela. Cor e fonte ficam nos <span> por causa das regras globais
+ * `a { color/font: inherit }`. `className`, `textClassName` e
+ * `circleClassName` recebem margens e ajustes responsivos de cada uso.
+ */
+function PrimaryCta({
+  href,
+  label,
+  external = false,
+  className = "",
+  textClassName = "",
+  circleClassName = "",
+}: {
+  href: string;
+  label: string;
+  external?: boolean;
+  className?: string;
+  textClassName?: string;
+  circleClassName?: string;
+}) {
+  return (
+    <a
+      href={href}
+      {...(external ? { target: "_blank", rel: "noreferrer" } : {})}
+      className={`group/cta inline-flex min-h-14 items-center justify-center gap-3 rounded-full border border-[#ffd66b]/70 bg-gradient-to-b from-[#ffcb33] to-[#f6bd16] py-[7px] pl-7 pr-[7px] shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_10px_28px_-14px_rgba(246,189,22,0.6)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.4),0_14px_34px_-12px_rgba(246,189,22,0.8)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f6bd16]/70 focus-visible:ring-offset-2 motion-reduce:transition-none motion-reduce:hover:translate-y-0 ${className}`}
+    >
+      <span
+        className={`whitespace-nowrap text-sm font-extrabold text-[#090909] ${textClassName}`}
+      >
+        {label}
+      </span>
+      <span
+        aria-hidden="true"
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#090909] text-[#f6bd16] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] ${circleClassName}`}
+      >
+        <svg
+          viewBox="0 0 24 24"
+          className="h-4 w-4 fill-none stroke-current stroke-[2.2] transition-transform duration-300 group-hover/cta:translate-x-1 motion-reduce:transition-none motion-reduce:group-hover/cta:translate-x-0"
+        >
+          <path
+            d="M5 12h13.5M13 6.5 18.5 12 13 17.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </span>
+    </a>
+  );
+}
+
+/**
+ * CTA escuro em pílula dos cards de Habilitação, com seta em círculo dourado.
+ * Cor e fonte ficam nos <span> internos: as regras globais
+ * `a { color: inherit }` e `a { font: inherit }` sobrepõem essas classes no <a>.
+ */
+function CardCta({ href, label }: { href: string; label: string }) {
+  return (
+    <a
+      href={href}
+      className="group/cta mt-4 inline-flex min-h-11 max-w-full items-center gap-2.5 self-start rounded-full border border-[#f6bd16]/30 bg-black/30 py-[5px] pl-4 pr-[5px] transition duration-300 hover:border-[#f6bd16]/60 hover:bg-[#f6bd16]/[0.07] hover:shadow-[0_0_18px_-6px_rgba(246,189,22,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f6bd16]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#111111] motion-reduce:transition-none"
+    >
+      <span className="min-w-0 text-balance text-[13px] font-medium leading-tight text-white">
+        {label}
+      </span>
+      <span aria-hidden="true" className={`${ctaCircleClass} h-[30px] w-[30px]`}>
+        <CtaArrow />
+      </span>
+    </a>
+  );
+}
+
+/**
+ * CTA de conversão dos cards de Pacotes: mesma linguagem do CardCta, com
+ * ícone do WhatsApp e largura total do card. Em 4 colunas (xl) o card tem
+ * ~220px úteis, então tudo fica mais compacto. O texto pode encolher
+ * (min-w-0) e quebrar se faltar espaço, para o círculo nunca sair da cápsula.
+ */
+function PackageCta({ href }: { href: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="group/cta mt-6 flex min-h-12 w-full items-center gap-2.5 rounded-full border border-[#f6bd16]/30 bg-black/30 py-[6px] pl-5 pr-[6px] transition duration-300 hover:-translate-y-px hover:border-[#f6bd16]/60 hover:bg-[#f6bd16]/[0.07] hover:shadow-[0_0_20px_-6px_rgba(246,189,22,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f6bd16]/60 motion-reduce:transition-none motion-reduce:hover:translate-y-0 xl:gap-1.5 xl:pl-3 xl:pr-[5px]"
+    >
+      <span className="flex shrink-0 text-[#f6bd16]/90 [&>svg]:h-4 [&>svg]:w-4 xl:[&>svg]:h-3.5 xl:[&>svg]:w-3.5">
+        <WhatsAppIcon />
+      </span>
+      <span className="min-w-0 flex-1 text-balance text-sm font-semibold leading-tight text-white xl:text-xs xl:font-medium">
+        Consultar pelo WhatsApp
+      </span>
+      <span aria-hidden="true" className={`${ctaCircleClass} h-[34px] w-[34px] xl:h-[30px] xl:w-[30px]`}>
+        <CtaArrow />
+      </span>
+    </a>
+  );
+}
+
+/**
+ * Segmento dourado que percorre o perímetro de um elemento com cantos
+ * arredondados. Usa um <rect> SVG com pathLength="100": o tamanho do
+ * segmento fica proporcional ao perímetro real, em qualquer tamanho.
+ * O pai precisa ser `relative`; `inset` alinha o traço ao centro da borda.
+ * Estilos em `.gr-trace*` (seções abaixo).
+ */
+function BorderTrace({
+  className,
+  radius,
+  inset,
+  delay = "0s",
+}: {
+  className: string;
+  radius: number;
+  inset: number;
+  delay?: string;
+}) {
+  return (
+    <svg
+      aria-hidden="true"
+      className={`gr-trace pointer-events-none absolute overflow-visible ${className}`}
+      style={{
+        left: inset,
+        top: inset,
+        width: `calc(100% - ${inset * 2}px)`,
+        height: `calc(100% - ${inset * 2}px)`,
+      }}
+    >
+      <rect
+        className="gr-trace-tail"
+        width="100%"
+        height="100%"
+        rx={radius}
+        pathLength={100}
+        style={{ animationDelay: delay }}
+      />
+      <rect
+        className="gr-trace-head"
+        width="100%"
+        height="100%"
+        rx={radius}
+        pathLength={100}
+        style={{ animationDelay: delay }}
+      />
+    </svg>
+  );
 }
 
 function WhatsAppIcon() {
@@ -122,7 +362,32 @@ export default function Home() {
     <main>
       <Header />
 
-      <section className="relative overflow-hidden border-b border-white/10 bg-[#090909]">
+      <section className="relative isolate overflow-hidden border-b border-white/10 bg-[#171610]">
+        {/* Iluminação ambiente do Hero: tablet/mobile (card abaixo do texto) */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 -z-10 lg:hidden"
+          style={{
+            backgroundImage:
+              "radial-gradient(ellipse 75% 38% at 72% 74%, rgba(246,189,22,0.08), transparent 70%), radial-gradient(ellipse 65% 35% at 0% 10%, rgba(246,189,22,0.04), transparent 70%), radial-gradient(ellipse 90% 60% at 50% 40%, rgba(255,236,190,0.03), transparent 75%), radial-gradient(ellipse 140% 100% at 50% 45%, transparent 60%, rgba(0,0,0,0.3) 100%)",
+          }}
+        />
+        {/* Iluminação ambiente do Hero: desktop (glow atrás do card da direita) */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 -z-10 hidden lg:block"
+          style={{
+            backgroundImage:
+              "radial-gradient(ellipse 45% 65% at 76% 45%, rgba(246,189,22,0.12), transparent 70%), radial-gradient(ellipse 40% 55% at 8% 100%, rgba(246,189,22,0.05), transparent 70%), radial-gradient(ellipse 60% 70% at 45% 45%, rgba(255,236,190,0.035), transparent 75%), radial-gradient(ellipse 115% 100% at 50% 45%, transparent 60%, rgba(0,0,0,0.35) 100%)",
+          }}
+        />
+        {/* Grid técnico do Hero: mesmo de Pacotes, com intensidade menor */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 -z-10 opacity-[0.03] lg:opacity-[0.035]"
+          style={WARM_GRID_STYLE}
+        />
+
         <div className="gr-container grid gap-12 py-20 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:gap-16 lg:py-0 lg:min-h-[680px]">
           <div className="relative z-10 max-w-[620px]">
             <p className="text-[#f6bd16]">
@@ -139,19 +404,25 @@ export default function Home() {
               processo.
             </p>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <a
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap lg:gap-2 xl:gap-3">
+              <PrimaryCta
                 href="#habilitacao"
-                className="inline-flex min-h-14 items-center justify-center rounded-full bg-[#f6bd16] px-7 text-sm font-extrabold text-[#090909] transition hover:bg-[#ffd044]"
-              >
-                Quero começar minha CNH
-              </a>
+                label="Quero começar minha CNH"
+                className="focus-visible:ring-offset-[#171610] lg:gap-2 lg:pl-4 xl:gap-3 xl:pl-7"
+                textClassName="lg:text-[13px] xl:text-sm"
+                circleClassName="lg:h-[34px] lg:w-[34px] xl:h-10 xl:w-10"
+              />
 
               <a
                 href="#pacotes"
-                className="inline-flex min-h-14 items-center justify-center rounded-full border border-white/15 px-7 text-sm font-bold text-white transition hover:border-white/30 hover:bg-white/5"
+                className="group/cta inline-flex min-h-14 items-center justify-center gap-3 rounded-full border border-[#f6bd16]/30 bg-black/30 py-2 pl-7 pr-2.5 transition duration-300 hover:border-[#f6bd16]/60 hover:bg-[#f6bd16]/[0.06] hover:shadow-[inset_0_0_20px_rgba(246,189,22,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f6bd16]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#171610] motion-reduce:transition-none lg:gap-2 lg:pl-4 lg:pr-2 xl:gap-3 xl:pl-7 xl:pr-2.5"
               >
-                Ver pacotes e valores
+                <span className="whitespace-nowrap text-sm font-bold text-white lg:text-[13px] xl:text-sm">
+                  Ver pacotes e valores
+                </span>
+                <span aria-hidden="true" className={`${ctaCircleClass} h-[34px] w-[34px] lg:h-[30px] lg:w-[30px] xl:h-[34px] xl:w-[34px]`}>
+                  <CtaArrow />
+                </span>
               </a>
             </div>
 
@@ -196,11 +467,80 @@ export default function Home() {
                 </p>
               </div>
             </div>
+
+            {/* Traço dourado na moldura do card (mesmo BorderTrace da Habilitação).
+                Fica fora do card por causa do overflow-hidden e acompanha sua largura. */}
+            <style>{`
+              .gr-trace-hero {
+                --gr-trace-duration: 11s;
+                filter: drop-shadow(0 0 5px rgba(246, 189, 22, 0.45));
+              }
+              .gr-trace-hero .gr-trace-tail {
+                stroke: rgba(246, 189, 22, 0.3);
+                stroke-width: 1.75px;
+              }
+              .gr-trace-hero .gr-trace-head {
+                stroke: rgba(246, 189, 22, 0.9);
+                stroke-width: 1.75px;
+              }
+            `}</style>
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-y-0 left-0 right-0 mx-auto w-full max-w-[420px] lg:max-w-none"
+            >
+              <BorderTrace className="gr-trace-hero" radius={31.5} inset={0.5} />
+            </div>
           </div>
         </div>
       </section>
 
       <section id="habilitacao" className="border-b border-white/10 bg-[#090909] py-16 lg:py-24">
+        <style>{`
+          .gr-trace rect {
+            fill: none;
+            stroke-linecap: round;
+          }
+          .gr-trace-tail {
+            stroke-dasharray: 18 82;
+            animation: gr-trace-tail var(--gr-trace-duration) linear infinite;
+          }
+          .gr-trace-head {
+            stroke-dasharray: 8 92;
+            animation: gr-trace-head var(--gr-trace-duration) linear infinite;
+          }
+          @keyframes gr-trace-tail {
+            from { stroke-dashoffset: 0; }
+            to { stroke-dashoffset: -100; }
+          }
+          @keyframes gr-trace-head {
+            from { stroke-dashoffset: -5; }
+            to { stroke-dashoffset: -105; }
+          }
+          .gr-trace-card {
+            --gr-trace-duration: 9s;
+            opacity: 0.75;
+            filter: drop-shadow(0 0 4px rgba(246, 189, 22, 0.35));
+            transition: opacity 500ms ease, filter 500ms ease;
+          }
+          .gr-trace-card .gr-trace-tail {
+            stroke: rgba(246, 189, 22, 0.28);
+            stroke-width: 1.5px;
+          }
+          .gr-trace-card .gr-trace-head {
+            stroke: rgba(246, 189, 22, 0.85);
+            stroke-width: 1.5px;
+          }
+          .group:hover > .gr-trace-card {
+            opacity: 1;
+            filter: drop-shadow(0 0 6px rgba(246, 189, 22, 0.5));
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .gr-trace {
+              display: none;
+            }
+          }
+        `}</style>
+
         <div className="gr-container">
           <div className="max-w-[620px]">
             <p className="text-[#f6bd16]">Habilitação</p>
@@ -215,7 +555,14 @@ export default function Home() {
           </div>
 
           <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            <article className="group flex flex-col rounded-[28px] border border-white/10 bg-[#111111] p-8 transition hover:border-[#f6bd16]/40">
+            <article className="group relative flex flex-col rounded-[28px] border border-white/10 bg-[#111111] p-8 transition hover:border-[#f6bd16]/40"
+              style={{
+                backgroundImage:
+                  "radial-gradient(ellipse 100% 60% at 100% 0%, rgba(246,189,22,0.11) 0%, rgba(246,189,22,0.065) 25%, rgba(246,189,22,0.025) 48%, transparent 68%)",
+              }}
+            >
+              <BorderTrace className="gr-trace-card" radius={27.5} inset={-0.5} delay="0s" />
+
               <div className="relative flex aspect-[16/9] w-full items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-[#181818] to-[#0d0d0d]">
                 <div
                   aria-hidden="true"
@@ -249,16 +596,17 @@ export default function Home() {
                 três rodas, como motos, motonetas e triciclos.
               </p>
 
-              <a
-                href="#pacotes"
-                className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#f6bd16] transition group-hover:gap-3 group-hover:text-[#ffd044] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f6bd16]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#111111]"
-              >
-                Ver opções para moto
-                <span aria-hidden="true">→</span>
-              </a>
+              <CardCta href="#pacotes" label="Ver opções para moto" />
             </article>
 
-            <article className="group flex flex-col rounded-[28px] border border-white/10 bg-[#111111] p-8 transition hover:border-[#f6bd16]/40">
+            <article className="group relative flex flex-col rounded-[28px] border border-white/10 bg-[#111111] p-8 transition hover:border-[#f6bd16]/40"
+              style={{
+                backgroundImage:
+                  "radial-gradient(ellipse 90% 58% at 50% 0%, rgba(246,189,22,0.11) 0%, rgba(246,189,22,0.065) 25%, rgba(246,189,22,0.025) 48%, transparent 68%)",
+              }}
+            >
+              <BorderTrace className="gr-trace-card" radius={27.5} inset={-0.5} delay="-2.3s" />
+
               <div className="relative flex aspect-[16/9] w-full items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-[#181818] to-[#0d0d0d]">
                 <div
                   aria-hidden="true"
@@ -293,16 +641,17 @@ export default function Home() {
                 categoria utilizada para carros de passeio.
               </p>
 
-              <a
-                href="#pacotes"
-                className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#f6bd16] transition group-hover:gap-3 group-hover:text-[#ffd044] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f6bd16]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#111111]"
-              >
-                Ver opções para carro
-                <span aria-hidden="true">→</span>
-              </a>
+              <CardCta href="#pacotes" label="Ver opções para carro" />
             </article>
 
-            <article className="group flex flex-col rounded-[28px] border border-white/10 bg-[#111111] p-8 transition hover:border-[#f6bd16]/40">
+            <article className="group relative flex flex-col rounded-[28px] border border-white/10 bg-[#111111] p-8 transition hover:border-[#f6bd16]/40"
+              style={{
+                backgroundImage:
+                  "radial-gradient(ellipse 100% 60% at 0% 0%, rgba(246,189,22,0.11) 0%, rgba(246,189,22,0.065) 25%, rgba(246,189,22,0.025) 48%, transparent 68%)",
+              }}
+            >
+              <BorderTrace className="gr-trace-card" radius={27.5} inset={-0.5} delay="-4.7s" />
+
               <div className="relative flex aspect-[16/9] w-full items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-[#181818] to-[#0d0d0d]">
                 <div
                   aria-hidden="true"
@@ -338,16 +687,17 @@ export default function Home() {
                 habilitação para conduzir carro e moto.
               </p>
 
-              <a
-                href="#pacotes"
-                className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#f6bd16] transition group-hover:gap-3 group-hover:text-[#ffd044] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f6bd16]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#111111]"
-              >
-                Ver opção completa
-                <span aria-hidden="true">→</span>
-              </a>
+              <CardCta href="#pacotes" label="Ver opção completa" />
             </article>
 
-            <article className="group flex flex-col rounded-[28px] border border-white/10 bg-[#111111] p-8 transition hover:border-[#f6bd16]/40">
+            <article className="group relative flex flex-col rounded-[28px] border border-white/10 bg-[#111111] p-8 transition hover:border-[#f6bd16]/40"
+              style={{
+                backgroundImage:
+                  "radial-gradient(ellipse 100% 60% at 88% 0%, rgba(246,189,22,0.11) 0%, rgba(246,189,22,0.065) 25%, rgba(246,189,22,0.025) 48%, transparent 68%)",
+              }}
+            >
+              <BorderTrace className="gr-trace-card" radius={27.5} inset={-0.5} delay="-6.9s" />
+
               <div className="relative flex aspect-[16/9] w-full items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-b from-[#181818] to-[#0d0d0d]">
                 <div
                   aria-hidden="true"
@@ -381,13 +731,7 @@ export default function Home() {
                 categoria para moto.
               </p>
 
-              <a
-                href="#pacotes"
-                className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#f6bd16] transition group-hover:gap-3 group-hover:text-[#ffd044] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f6bd16]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#111111]"
-              >
-                Ver opções de adição
-                <span aria-hidden="true">→</span>
-              </a>
+              <CardCta href="#pacotes" label="Ver opções de adição" />
             </article>
           </div>
         </div>
@@ -397,14 +741,37 @@ export default function Home() {
         id="alunos"
         className="relative overflow-hidden border-b border-white/10 bg-[#090909] py-16 lg:py-24"
       >
+        {/* Atmosfera da seção Alunos: luz central ampla + luz na faixa das fotos */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 opacity-[0.03]"
+          className="pointer-events-none absolute inset-0 lg:hidden"
           style={{
             backgroundImage:
-              "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)",
-            backgroundSize: "32px 32px",
+              "radial-gradient(ellipse 80% 55% at 50% 45%, rgba(246,189,22,0.065) 0%, rgba(246,189,22,0.04) 28%, rgba(246,189,22,0.018) 52%, transparent 75%), radial-gradient(ellipse 90% 26% at 50% 72%, rgba(246,189,22,0.04), transparent 70%)",
           }}
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 hidden lg:block"
+          style={{
+            backgroundImage:
+              "radial-gradient(ellipse 55% 65% at 50% 50%, rgba(246,189,22,0.085) 0%, rgba(246,189,22,0.052) 28%, rgba(246,189,22,0.022) 52%, transparent 75%), radial-gradient(ellipse 65% 30% at 50% 70%, rgba(246,189,22,0.05), transparent 70%)",
+          }}
+        />
+        {/* Vinheta lateral: conduz o olhar ao centro sem esconder o grid */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0"
+          style={{
+            backgroundImage:
+              "linear-gradient(90deg, rgba(0,0,0,0.5) 0%, transparent 24%, transparent 76%, rgba(0,0,0,0.5) 100%)",
+          }}
+        />
+
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 opacity-[0.025]"
+          style={SOFT_GRID_STYLE}
         />
 
         <div
@@ -432,7 +799,78 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="pacotes" className="border-b border-white/10 bg-[#0c0c0c] py-16 lg:py-24">
+      <section id="pacotes" className="relative isolate overflow-hidden border-b border-white/10 bg-[#0c0c0c] py-16 lg:py-24">
+        {/* Fundo da seção Pacotes: halo dourado amplo atrás dos cards */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 -z-10 lg:hidden"
+          style={{
+            backgroundImage:
+              "radial-gradient(ellipse 95% 38% at 50% 50%, rgba(246,189,22,0.05) 0%, rgba(246,189,22,0.025) 32%, rgba(246,189,22,0.01) 55%, transparent 75%)",
+          }}
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 -z-10 hidden lg:block"
+          style={{
+            backgroundImage:
+              "radial-gradient(ellipse 60% 50% at 50% 52%, rgba(246,189,22,0.08) 0%, rgba(246,189,22,0.04) 30%, rgba(246,189,22,0.015) 52%, transparent 72%)",
+          }}
+        />
+        {/* Grid técnico em grafite quente, mais discreto que o da seção Alunos */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 -z-10 opacity-[0.045]"
+          style={WARM_GRID_STYLE}
+        />
+        {/* Fio dourado sutil na transição com a seção anterior */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-px bg-gradient-to-r from-transparent via-[#f6bd16]/[0.12] to-transparent"
+        />
+
+        {/* Traço dourado nas bordas dos cards (BorderTrace, variantes de Pacotes) */}
+        <style>{`
+          .gr-trace-pkg {
+            --gr-trace-duration: 9s;
+            opacity: 0.85;
+            filter: drop-shadow(0 0 4px rgba(246, 189, 22, 0.35));
+          }
+          .gr-trace-pkg .gr-trace-tail {
+            stroke: rgba(246, 189, 22, 0.22);
+            stroke-width: 1.5px;
+          }
+          .gr-trace-pkg .gr-trace-head {
+            stroke: rgba(246, 189, 22, 0.8);
+            stroke-width: 1.5px;
+          }
+          .gr-trace-pkg-featured {
+            --gr-trace-duration: 8s;
+            opacity: 1;
+            filter: drop-shadow(0 0 6px rgba(246, 189, 22, 0.5));
+          }
+          .gr-trace-pkg-featured .gr-trace-tail {
+            stroke: rgba(246, 189, 22, 0.35);
+            stroke-width: 1.75px;
+          }
+          .gr-trace-pkg-featured .gr-trace-head {
+            stroke: rgba(255, 214, 90, 0.95);
+            stroke-width: 1.75px;
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .gr-trace.gr-trace-pkg {
+              display: block;
+            }
+            .gr-trace-pkg .gr-trace-tail,
+            .gr-trace-pkg .gr-trace-head {
+              animation: none;
+            }
+            .gr-trace-pkg .gr-trace-head {
+              stroke-dashoffset: -5;
+            }
+          }
+        `}</style>
+
         <div className="gr-container">
           <div className="max-w-[620px]">
             <p className="text-[#f6bd16]">Pacotes</p>
@@ -447,163 +885,79 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="mt-14 grid gap-6 lg:grid-cols-3 lg:items-start">
-            <article className="flex flex-col rounded-[28px] border border-white/10 bg-[#141414] p-8">
-              <span className="text-xs font-bold uppercase tracking-[0.16em] text-[#f6bd16]">
-                Categoria A
-              </span>
-
-              <h3 className="mt-3 text-2xl font-black text-white">
-                CNH Moto
-              </h3>
-
-              <p className="mt-3 text-[15px] leading-7 text-white/60">
-                Para quem deseja iniciar o processo de habilitação para
-                motocicletas.
-              </p>
-
-              <ul className="mt-6 flex flex-col gap-3 text-sm text-white/70">
-                <li className="flex items-center gap-3">
-                  <CheckIcon />
-                  Categoria A
-                </li>
-                <li className="flex items-center gap-3">
-                  <CheckIcon />
-                  Atendimento personalizado
-                </li>
-                <li className="flex items-center gap-3">
-                  <CheckIcon />
-                  Consulte valores e condições
-                </li>
-              </ul>
-
-              <div className="mt-8 rounded-2xl border border-dashed border-white/15 bg-white/[0.02] px-5 py-4 text-center">
-                <span className="block text-[11px] uppercase tracking-[0.14em] text-white/40">
-                  Investimento
-                </span>
-                <span className="mt-1 block text-sm font-semibold text-white/60">
-                  Em breve
-                </span>
-              </div>
-
-              <a
-                href={whatsappHref(
-                  "Olá! Gostaria de saber os valores e condições para CNH de moto (Categoria A).",
-                )}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-6 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#f6bd16] px-6 text-sm font-extrabold text-[#090909] transition hover:bg-[#ffd044] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f6bd16]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#141414]"
+          <div className="mt-14 grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+            {PACKAGE_CARDS.map((card, cardIndex) => (
+              <article
+                key={card.title}
+                className={
+                  card.highlight
+                    ? "relative flex flex-col rounded-[28px] border border-[#f6bd16]/40 bg-[#161512] p-8 shadow-[0_0_70px_-6px_rgba(246,189,22,0.07)] xl:-translate-y-3 xl:shadow-[0_30px_60px_-20px_rgba(246,189,22,0.18),0_0_70px_-6px_rgba(246,189,22,0.07)]"
+                    : "relative flex flex-col rounded-[28px] border border-white/10 bg-[#141414] p-8"
+                }
               >
-                <WhatsAppIcon />
-                Consultar pelo WhatsApp
-              </a>
-            </article>
+                <BorderTrace
+                  className={card.highlight ? "gr-trace-pkg gr-trace-pkg-featured" : "gr-trace-pkg"}
+                  radius={27.5}
+                  inset={-0.5}
+                  delay={PACKAGE_TRACE_DELAYS[cardIndex]}
+                />
 
-            <article className="flex flex-col rounded-[28px] border border-white/10 bg-[#141414] p-8">
-              <span className="text-xs font-bold uppercase tracking-[0.16em] text-[#f6bd16]">
-                Categoria B
-              </span>
-
-              <h3 className="mt-3 text-2xl font-black text-white">
-                CNH Carro
-              </h3>
-
-              <p className="mt-3 text-[15px] leading-7 text-white/60">
-                Para quem deseja iniciar o processo de habilitação para
-                automóveis.
-              </p>
-
-              <ul className="mt-6 flex flex-col gap-3 text-sm text-white/70">
-                <li className="flex items-center gap-3">
-                  <CheckIcon />
-                  Categoria B
-                </li>
-                <li className="flex items-center gap-3">
-                  <CheckIcon />
-                  Atendimento personalizado
-                </li>
-                <li className="flex items-center gap-3">
-                  <CheckIcon />
-                  Consulte valores e condições
-                </li>
-              </ul>
-
-              <div className="mt-8 rounded-2xl border border-dashed border-white/15 bg-white/[0.02] px-5 py-4 text-center">
-                <span className="block text-[11px] uppercase tracking-[0.14em] text-white/40">
-                  Investimento
-                </span>
-                <span className="mt-1 block text-sm font-semibold text-white/60">
-                  Em breve
-                </span>
-              </div>
-
-              <a
-                href={whatsappHref(
-                  "Olá! Gostaria de saber os valores e condições para CNH de carro (Categoria B).",
+                {card.highlight && (
+                  <span className="absolute -top-3 left-8 rounded-full bg-[#f6bd16] px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-[#090909]">
+                    Opção completa
+                  </span>
                 )}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-6 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#f6bd16] px-6 text-sm font-extrabold text-[#090909] transition hover:bg-[#ffd044] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f6bd16]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#141414]"
-              >
-                <WhatsAppIcon />
-                Consultar pelo WhatsApp
-              </a>
-            </article>
 
-            <article className="relative flex flex-col rounded-[28px] border border-[#f6bd16]/40 bg-[#161512] p-8 lg:-translate-y-3 lg:shadow-[0_30px_60px_-20px_rgba(246,189,22,0.18)]">
-              <span className="absolute -top-3 left-8 rounded-full bg-[#f6bd16] px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-[#090909]">
-                Opção completa
-              </span>
-
-              <span className="text-xs font-bold uppercase tracking-[0.16em] text-[#f6bd16]">
-                Categorias A + B
-              </span>
-
-              <h3 className="mt-3 text-2xl font-black text-white">
-                Carro + Moto
-              </h3>
-
-              <p className="mt-3 text-[15px] leading-7 text-white/60">
-                Uma opção para quem deseja realizar o processo das duas
-                categorias.
-              </p>
-
-              <ul className="mt-6 flex flex-col gap-3 text-sm text-white/70">
-                <li className="flex items-center gap-3">
-                  <CheckIcon />
-                  Categorias A + B
-                </li>
-                <li className="flex items-center gap-3">
-                  <CheckIcon />
-                  Atendimento personalizado
-                </li>
-                <li className="flex items-center gap-3">
-                  <CheckIcon />
-                  Consulte valores e condições
-                </li>
-              </ul>
-
-              <div className="mt-8 rounded-2xl border border-dashed border-white/15 bg-white/[0.02] px-5 py-4 text-center">
-                <span className="block text-[11px] uppercase tracking-[0.14em] text-white/40">
-                  Investimento
+                <span className="text-xs font-bold uppercase tracking-[0.16em] text-[#f6bd16]">
+                  {card.eyebrow}
                 </span>
-                <span className="mt-1 block text-sm font-semibold text-white/60">
-                  Em breve
-                </span>
-              </div>
 
-              <a
-                href={whatsappHref(
-                  "Olá! Gostaria de saber os valores e condições para CNH de carro + moto (Categorias A + B).",
-                )}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-6 inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-full bg-[#f6bd16] px-6 text-sm font-extrabold text-[#090909] transition hover:bg-[#ffd044] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f6bd16]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#161512]"
-              >
-                <WhatsAppIcon />
-                Consultar pelo WhatsApp
-              </a>
-            </article>
+                <h3 className="mt-3 text-2xl font-black text-white">
+                  {card.title}
+                </h3>
+
+                <p className="mt-3 text-[15px] leading-7 text-white/60">
+                  {card.description}
+                </p>
+
+                <ul className="mt-6 flex flex-col gap-3 text-sm text-white/70">
+                  {card.features.map((feature) => (
+                    <li key={feature} className="flex items-center gap-3">
+                      <CheckIcon />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+
+                <ul className="mt-8 flex flex-1 flex-col justify-end gap-2.5">
+                  {card.prices.map((price, index) => (
+                    <li
+                      key={PACKAGE_LESSONS[index]}
+                      className={`rounded-2xl border px-5 py-3.5 ${
+                        card.highlight
+                          ? "border-[#f6bd16]/15 bg-[#f6bd16]/[0.035]"
+                          : "border-white/10 bg-white/[0.025]"
+                      }`}
+                    >
+                      <span className="block text-[11px] font-bold uppercase tracking-[0.14em] text-white/50">
+                        <span className="text-[#f6bd16]">
+                          {PACKAGE_LESSONS[index]}
+                        </span>{" "}
+                        Aulas práticas
+                      </span>
+                      <span className="mt-1 block text-2xl font-black text-white">
+                        <span className="mr-1 text-sm font-bold text-white/60">
+                          R$
+                        </span>
+                        {price}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+
+                <PackageCta href={whatsappHref(card.message)} />
+              </article>
+            ))}
           </div>
         </div>
       </section>
@@ -612,19 +966,35 @@ export default function Home() {
         id="processo"
         className="relative overflow-hidden border-b border-white/10 bg-[#090909] py-16 lg:py-24"
       >
+        {/* Fundo de Como funciona: mesma linguagem discreta da seção Alunos */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 opacity-[0.04]"
+          className="pointer-events-none absolute inset-0 lg:hidden"
           style={{
             backgroundImage:
-              "linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)",
-            backgroundSize: "32px 32px",
+              "radial-gradient(ellipse 85% 35% at 50% 38%, rgba(246,189,22,0.045) 0%, rgba(246,189,22,0.02) 45%, transparent 75%)",
           }}
         />
-
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -right-32 -top-24 h-[420px] w-[420px] rounded-full bg-[#f6bd16]/10 blur-[120px]"
+          className="pointer-events-none absolute inset-0 hidden lg:block"
+          style={{
+            backgroundImage:
+              "radial-gradient(ellipse 50% 55% at 50% 48%, rgba(246,189,22,0.06) 0%, rgba(246,189,22,0.03) 35%, rgba(246,189,22,0.012) 58%, transparent 78%)",
+          }}
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0"
+          style={{
+            backgroundImage:
+              "linear-gradient(90deg, rgba(0,0,0,0.5) 0%, transparent 24%, transparent 76%, rgba(0,0,0,0.5) 100%)",
+          }}
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 opacity-[0.025]"
+          style={SOFT_GRID_STYLE}
         />
 
         <div className="gr-container relative">
@@ -640,19 +1010,21 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="relative mt-16 flex flex-col gap-12 lg:gap-16">
-            <ol className="group/row relative grid list-none gap-12 lg:grid-cols-3 lg:gap-8">
+          <div className="relative mt-16 flex flex-col gap-12 lg:gap-20">
+            <ol className="group/row relative grid list-none gap-12 lg:grid-cols-3">
+              {/* Linha da fileira (lg): do centro do 1º ao do 3º círculo.
+                  3 colunas com gap de 3rem: centro do último = 100% - (coluna - 28px). */}
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute left-0 right-0 top-7 hidden h-px bg-white/10 transition-colors duration-300 motion-reduce:transition-none lg:block group-hover/row:bg-[#f6bd16]/30"
+                className="pointer-events-none absolute left-7 right-[calc((100%-6rem)/3-1.75rem)] top-7 hidden h-px bg-[#f6bd16]/25 transition-colors duration-300 motion-reduce:transition-none lg:block group-hover/row:bg-[#f6bd16]/45"
               />
 
-              <li className="group relative flex gap-5 lg:flex-col lg:items-center lg:text-center">
+              <li className="group relative flex gap-5 lg:flex-col lg:items-start">
                 <div
                   aria-hidden="true"
                   className="absolute left-7 top-14 -bottom-12 w-px bg-white/10 transition-colors duration-300 motion-reduce:transition-none lg:hidden group-hover:bg-[#f6bd16]/30"
                 />
-                <span className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-[#f6bd16]/40 bg-[#090909] text-lg font-black text-[#f6bd16] transition-shadow duration-300 motion-reduce:transition-none group-hover:shadow-[0_0_16px_2px_rgba(246,189,22,0.45)]">
+                <span className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-[#f6bd16]/40 bg-[#090909] text-lg font-black text-[#f6bd16] transition-shadow duration-300 motion-reduce:transition-none lg:ring-[6px] lg:ring-[#f6bd16]/[0.05] group-hover:shadow-[0_0_16px_2px_rgba(246,189,22,0.45)]">
                   01
                 </span>
 
@@ -675,12 +1047,12 @@ export default function Home() {
                 </div>
               </li>
 
-              <li className="group relative flex gap-5 lg:flex-col lg:items-center lg:text-center">
+              <li className="group relative flex gap-5 lg:flex-col lg:items-start">
                 <div
                   aria-hidden="true"
                   className="absolute left-7 top-14 -bottom-12 w-px bg-white/10 transition-colors duration-300 motion-reduce:transition-none lg:hidden group-hover:bg-[#f6bd16]/30"
                 />
-                <span className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-[#f6bd16]/40 bg-[#090909] text-lg font-black text-[#f6bd16] transition-shadow duration-300 motion-reduce:transition-none group-hover:shadow-[0_0_16px_2px_rgba(246,189,22,0.45)]">
+                <span className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-[#f6bd16]/40 bg-[#090909] text-lg font-black text-[#f6bd16] transition-shadow duration-300 motion-reduce:transition-none lg:ring-[6px] lg:ring-[#f6bd16]/[0.05] group-hover:shadow-[0_0_16px_2px_rgba(246,189,22,0.45)]">
                   02
                 </span>
 
@@ -695,12 +1067,12 @@ export default function Home() {
                 </div>
               </li>
 
-              <li className="group relative flex gap-5 lg:flex-col lg:items-center lg:text-center">
+              <li className="group relative flex gap-5 lg:flex-col lg:items-start">
                 <div
                   aria-hidden="true"
                   className="absolute left-7 top-14 -bottom-12 w-px bg-white/10 transition-colors duration-300 motion-reduce:transition-none lg:hidden group-hover:bg-[#f6bd16]/30"
                 />
-                <span className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-[#f6bd16]/40 bg-[#090909] text-lg font-black text-[#f6bd16] transition-shadow duration-300 motion-reduce:transition-none group-hover:shadow-[0_0_16px_2px_rgba(246,189,22,0.45)]">
+                <span className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-[#f6bd16]/40 bg-[#090909] text-lg font-black text-[#f6bd16] transition-shadow duration-300 motion-reduce:transition-none lg:ring-[6px] lg:ring-[#f6bd16]/[0.05] group-hover:shadow-[0_0_16px_2px_rgba(246,189,22,0.45)]">
                   03
                 </span>
 
@@ -721,18 +1093,20 @@ export default function Home() {
               </li>
             </ol>
 
-            <ol className="group/row relative grid list-none gap-12 lg:grid-cols-3 lg:gap-8">
+            <ol className="group/row relative grid list-none gap-12 lg:grid-cols-3">
+              {/* Linha da fileira (lg): do centro do 1º ao do 3º círculo.
+                  3 colunas com gap de 3rem: centro do último = 100% - (coluna - 28px). */}
               <div
                 aria-hidden="true"
-                className="pointer-events-none absolute left-0 right-0 top-7 hidden h-px bg-white/10 transition-colors duration-300 motion-reduce:transition-none lg:block group-hover/row:bg-[#f6bd16]/30"
+                className="pointer-events-none absolute left-7 right-[calc((100%-6rem)/3-1.75rem)] top-7 hidden h-px bg-[#f6bd16]/25 transition-colors duration-300 motion-reduce:transition-none lg:block group-hover/row:bg-[#f6bd16]/45"
               />
 
-              <li className="group relative flex gap-5 lg:flex-col lg:items-center lg:text-center">
+              <li className="group relative flex gap-5 lg:flex-col lg:items-start">
                 <div
                   aria-hidden="true"
                   className="absolute left-7 top-14 -bottom-12 w-px bg-white/10 transition-colors duration-300 motion-reduce:transition-none lg:hidden group-hover:bg-[#f6bd16]/30"
                 />
-                <span className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-[#f6bd16]/40 bg-[#090909] text-lg font-black text-[#f6bd16] transition-shadow duration-300 motion-reduce:transition-none group-hover:shadow-[0_0_16px_2px_rgba(246,189,22,0.45)]">
+                <span className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-[#f6bd16]/40 bg-[#090909] text-lg font-black text-[#f6bd16] transition-shadow duration-300 motion-reduce:transition-none lg:ring-[6px] lg:ring-[#f6bd16]/[0.05] group-hover:shadow-[0_0_16px_2px_rgba(246,189,22,0.45)]">
                   04
                 </span>
 
@@ -751,12 +1125,12 @@ export default function Home() {
                 </div>
               </li>
 
-              <li className="group relative flex gap-5 lg:flex-col lg:items-center lg:text-center">
+              <li className="group relative flex gap-5 lg:flex-col lg:items-start">
                 <div
                   aria-hidden="true"
                   className="absolute left-7 top-14 -bottom-12 w-px bg-white/10 transition-colors duration-300 motion-reduce:transition-none lg:hidden group-hover:bg-[#f6bd16]/30"
                 />
-                <span className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-[#f6bd16]/40 bg-[#090909] text-lg font-black text-[#f6bd16] transition-shadow duration-300 motion-reduce:transition-none group-hover:shadow-[0_0_16px_2px_rgba(246,189,22,0.45)]">
+                <span className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-[#f6bd16]/40 bg-[#090909] text-lg font-black text-[#f6bd16] transition-shadow duration-300 motion-reduce:transition-none lg:ring-[6px] lg:ring-[#f6bd16]/[0.05] group-hover:shadow-[0_0_16px_2px_rgba(246,189,22,0.45)]">
                   05
                 </span>
 
@@ -775,8 +1149,8 @@ export default function Home() {
                 </div>
               </li>
 
-              <li className="group relative flex gap-5 lg:flex-col lg:items-center lg:text-center">
-                <span className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-[#f6bd16]/40 bg-[#090909] text-lg font-black text-[#f6bd16] transition-shadow duration-300 motion-reduce:transition-none group-hover:shadow-[0_0_16px_2px_rgba(246,189,22,0.45)]">
+              <li className="group relative flex gap-5 lg:flex-col lg:items-start">
+                <span className="relative z-10 flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-[#f6bd16]/40 bg-[#090909] text-lg font-black text-[#f6bd16] transition-shadow duration-300 motion-reduce:transition-none lg:ring-[6px] lg:ring-[#f6bd16]/[0.05] group-hover:shadow-[0_0_16px_2px_rgba(246,189,22,0.45)]">
                   06
                 </span>
 
@@ -795,26 +1169,40 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="sobre" className="relative overflow-hidden border-b border-white/10 bg-[#090909] py-16 lg:py-24">
-        <div className="gr-container grid gap-14 lg:grid-cols-2 lg:items-center lg:gap-16">
+      <section id="sobre" className="relative isolate overflow-hidden border-b border-white/10 bg-[#15140f] py-16 lg:py-24">
+        {/* Luz ambiente da seção A GR: tablet/mobile (foto abaixo do texto) */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 -z-10 lg:hidden"
+          style={{
+            backgroundImage:
+              "radial-gradient(ellipse 80% 38% at 30% 80%, rgba(246,189,22,0.07), transparent 70%), radial-gradient(ellipse 90% 50% at 50% 45%, rgba(255,236,190,0.025), transparent 75%), radial-gradient(ellipse 140% 100% at 50% 50%, transparent 60%, rgba(0,0,0,0.3) 100%)",
+          }}
+        />
+        {/* Luz ambiente da seção A GR: desktop (halo atrás da foto, à esquerda) */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 -z-10 hidden lg:block"
+          style={{
+            backgroundImage:
+              "radial-gradient(ellipse 42% 70% at 22% 62%, rgba(246,189,22,0.09), transparent 70%), radial-gradient(ellipse 55% 65% at 55% 45%, rgba(255,236,190,0.03), transparent 75%), radial-gradient(ellipse 115% 100% at 50% 50%, transparent 60%, rgba(0,0,0,0.35) 100%)",
+          }}
+        />
+
+        <div className="gr-container grid gap-8 lg:grid-cols-2 lg:items-center lg:gap-16">
           <div className="relative order-2 lg:order-1">
             <style>{`
-              @property --gr-angle {
-                syntax: '<angle>';
-                inherits: false;
-                initial-value: 0deg;
+              .gr-trace-photo {
+                --gr-trace-duration: 10s;
+                filter: drop-shadow(0 0 6px rgba(246, 189, 22, 0.55));
               }
-              .gr-sobre-ring {
-                border-radius: inherit;
-                padding: 1px;
-                background: conic-gradient(from var(--gr-angle), transparent 0deg, transparent 260deg, rgba(246,189,22,0.85) 300deg, rgba(255,224,130,0.95) 315deg, rgba(246,189,22,0.85) 330deg, transparent 360deg);
-                -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-                -webkit-mask-composite: xor;
-                mask-composite: exclude;
-                animation: gr-ring-spin 7s linear infinite;
+              .gr-trace-photo .gr-trace-tail {
+                stroke: rgba(246, 189, 22, 0.35);
+                stroke-width: 2px;
               }
-              @keyframes gr-ring-spin {
-                to { --gr-angle: 360deg; }
+              .gr-trace-photo .gr-trace-head {
+                stroke: rgba(255, 214, 90, 0.95);
+                stroke-width: 2px;
               }
               .gr-sobre-halo {
                 animation: gr-halo-breathe 9s ease-in-out infinite;
@@ -832,7 +1220,6 @@ export default function Home() {
                 }
               }
               @media (prefers-reduced-motion: reduce) {
-                .gr-sobre-ring,
                 .gr-sobre-halo {
                   animation: none;
                 }
@@ -881,31 +1268,33 @@ export default function Home() {
                 aria-hidden="true"
                 className="pointer-events-none absolute bottom-6 left-6 h-7 w-7 rounded-bl-lg border-b border-l border-[#f6bd16]/40"
               />
-
-              <div
-                aria-hidden="true"
-                className="gr-sobre-ring pointer-events-none absolute inset-0"
-              />
             </div>
+
+            <BorderTrace className="gr-trace-photo" radius={27.5} inset={0.5} />
           </div>
 
-          <div className="order-1 lg:order-2">
-            <p className="text-[#f6bd16]">A Auto Escola GR</p>
+          {/* Abaixo de lg este bloco vira `contents`: seus filhos entram no grid
+              e a ordem fica texto → foto → diferenciais → CTA. No desktop é um
+              bloco normal na coluna da direita. */}
+          <div className="contents lg:order-2 lg:block">
+            <div className="order-1">
+              <p className="text-[#f6bd16]">A Auto Escola GR</p>
 
-            <h2 className="mt-4 text-4xl font-black text-white">
-              Mais que aprender a dirigir.
-            </h2>
+              <h2 className="mt-4 text-4xl font-black text-white">
+                Mais que aprender a dirigir.
+              </h2>
 
-            <p className="mt-6 max-w-[560px] text-lg leading-8 text-white/60">
-              Cada habilitação representa um novo passo. Na Auto Escola GR,
-              esse caminho é acompanhado por uma equipe preparada, atenta e
-              comprometida com o aprendizado de cada aluno. Valorizamos uma
-              formação clara, responsável e próxima, com foco na confiança ao
-              dirigir e na segurança no trânsito.
-            </p>
+              <p className="mt-6 max-w-[560px] text-lg leading-8 text-white/60">
+                Cada habilitação representa um novo passo. Na Auto Escola GR,
+                esse caminho é acompanhado por uma equipe preparada, atenta e
+                comprometida com o aprendizado de cada aluno. Valorizamos uma
+                formação clara, responsável e próxima, com foco na confiança ao
+                dirigir e na segurança no trânsito.
+              </p>
+            </div>
 
-            <div className="mt-10 divide-y divide-white/10">
-              <div className="flex gap-4 pb-5">
+            <div className="order-3 divide-y divide-white/10 lg:mt-10">
+              <div className="flex gap-4 pb-6 lg:pb-5">
                 <span className="text-sm font-black text-[#f6bd16]">01</span>
                 <div>
                   <h3 className="text-base font-bold text-white">
@@ -917,7 +1306,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="flex gap-4 py-5">
+              <div className="flex gap-4 py-6 lg:py-5">
                 <span className="text-sm font-black text-[#f6bd16]">02</span>
                 <div>
                   <h3 className="text-base font-bold text-white">
@@ -930,7 +1319,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="flex gap-4 pt-5">
+              <div className="flex gap-4 pt-6 lg:pt-5">
                 <span className="text-sm font-black text-[#f6bd16]">03</span>
                 <div>
                   <h3 className="text-base font-bold text-white">
@@ -944,17 +1333,14 @@ export default function Home() {
               </div>
             </div>
 
-            <a
+            <PrimaryCta
               href={whatsappHref(
                 "Olá! Conheci a Auto Escola GR pelo site e gostaria de saber mais sobre a habilitação.",
               )}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-10 inline-flex min-h-14 items-center justify-center gap-2 rounded-full bg-[#f6bd16] px-7 text-sm font-extrabold text-[#090909] transition hover:bg-[#ffd044] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f6bd16]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#090909]"
-            >
-              <WhatsAppIcon />
-              Falar com a Auto Escola GR
-            </a>
+              label="Falar com a Auto Escola GR"
+              external
+              className="order-4 mt-2 justify-self-start focus-visible:ring-offset-[#15140f] lg:mt-10"
+            />
           </div>
         </div>
       </section>
@@ -988,17 +1374,14 @@ export default function Home() {
                     Fale diretamente com a nossa equipe.
                   </p>
 
-                  <a
+                  <PrimaryCta
                     href={whatsappHref(
                       "Olá! Conheci a Auto Escola GR pelo site e gostaria de informações para começar minha CNH.",
                     )}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-4 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-[#f6bd16] px-6 text-sm font-extrabold text-[#090909] transition hover:bg-[#ffd044] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f6bd16]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#090909]"
-                  >
-                    <WhatsAppIcon />
-                    Chamar no WhatsApp
-                  </a>
+                    label="Chamar no WhatsApp"
+                    external
+                    className="mt-4 focus-visible:ring-offset-[#090909]"
+                  />
                 </div>
               </div>
 
@@ -1108,17 +1491,14 @@ export default function Home() {
             </p>
 
             <div className="mt-10 flex justify-center">
-              <a
+              <PrimaryCta
                 href={whatsappHref(
                   "Olá! Conheci a Auto Escola GR pelo site e quero começar meu processo de habilitação.",
                 )}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex min-h-14 items-center justify-center gap-2 rounded-full bg-[#f6bd16] px-8 text-sm font-extrabold text-[#090909] transition hover:bg-[#ffd044] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f6bd16]/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0c0c0c]"
-              >
-                <WhatsAppIcon />
-                Começar pelo WhatsApp
-              </a>
+                label="Começar pelo WhatsApp"
+                external
+                className="focus-visible:ring-offset-[#0c0c0c]"
+              />
             </div>
           </div>
         </div>

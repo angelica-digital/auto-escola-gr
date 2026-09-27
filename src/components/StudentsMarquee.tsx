@@ -34,15 +34,36 @@ export default function StudentsMarquee({ photos }: StudentsMarqueeProps) {
     if (prefersReducedMotion) return;
 
     let frameId: number;
-    const pixelsPerFrame = 0.5;
+    const pixelsPerSecond = 30;
 
-    const step = () => {
-      if (!pausedRef.current) {
-        const half = track.scrollWidth / 2;
-        track.scrollLeft += pixelsPerFrame;
-        if (track.scrollLeft >= half) {
-          track.scrollLeft -= half;
+    // A posição fica num acumulador em ponto flutuante: o navegador arredonda
+    // scrollLeft para pixels físicos, e somar frações direto nele (ex.: +0.5
+    // por quadro) faz o avanço se perder e a faixa parar em muitas telas.
+    let position = track.scrollLeft;
+    let lastTime: number | null = null;
+
+    // Largura exata de uma sequência de fotos: início da cópia duplicada.
+    const loopWidth = () => {
+      const first = track.children[0] as HTMLElement | undefined;
+      const copyStart = track.children[photos.length] as HTMLElement | undefined;
+      return first && copyStart ? copyStart.offsetLeft - first.offsetLeft : 0;
+    };
+
+    const step = (now: number) => {
+      const elapsed = lastTime === null ? 0 : Math.min(now - lastTime, 100);
+      lastTime = now;
+
+      if (pausedRef.current) {
+        // Mouse sobre a faixa ou arraste manual: segue a posição do usuário.
+        position = track.scrollLeft;
+      } else {
+        const width = loopWidth();
+        position += (pixelsPerSecond * elapsed) / 1000;
+        if (width > 0) {
+          if (position >= width) position -= width;
+          if (position < 0) position += width;
         }
+        track.scrollLeft = position;
       }
       frameId = requestAnimationFrame(step);
     };
